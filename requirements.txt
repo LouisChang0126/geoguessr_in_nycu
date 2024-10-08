@@ -1,0 +1,5 @@
+matplotlib=3.9.2==latest
+geopandas=0.14.4==latest
+osmnx=1.9.4==latest
+requests=2.32.3==latest
+tqdm=4.66.5==latest

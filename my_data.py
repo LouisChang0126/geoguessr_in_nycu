@@ -18,7 +18,7 @@ ox.settings.log_console = False
 def parser_args():
     parser = argparse.ArgumentParser(description='Setting the type of data')
     parser.add_argument('--network_type', type=str, default='walk', help='string {"all", "all_public", "bike", "drive", "drive_service", "walk"}')
-    
+    return parser.parse_args() 
 
 
 
@@ -74,31 +74,33 @@ if __name__ == '__main__':
 
     api_key = os.environ['API_KEY']
     data_info_list = []
-
+    
     for i in tqdm(range(gdf_edges.shape[0])):
         
         line = gdf_edges.iloc[i]['geometry']
         pitch_ang = "{:.1f}".format(np.rad2deg(np.arctan(gdf_edges.iloc[1]['grade'])))
         for j in range(len(line.coords)):
             location = f'{line.coords[j][1]}, {line.coords[j][0]}' 
-            for k in range(8):
-                heading_angle = str(k*45.0)
-                image_data = get_street_view_image(api_key, 
-                                                location, 
-                                                heading=heading_angle, 
-                                                pitch=pitch_ang)
+            if not os.path.exists(os.path.join('data/', location)):
+                os.mkdir(os.path.join('data/', location))
+                for k in range(8):
+                    heading_angle = str(k*45.0)
+                    image_data = get_street_view_image(api_key, 
+                                                    location, 
+                                                    heading=heading_angle, 
+                                                    pitch=pitch_ang)
 
-                data_info = pd.Series([i, j, line.coords[j], float(heading_angle), float(pitch_ang)])
-                if type(image_data) == str:
-                    # The error code, google doesn't have the data
-                    data_info['is_error'] = True
-                else:
-                    data_info['is_error'] = False
-                    # To save the image locally
-                    with open(f'data/{location}/{heading_angle}.jpg', 'wb') as f:
-                        f.write(image_data)
+                    data_info = pd.Series([i, j, line.coords[j], float(heading_angle), float(pitch_ang)])
+                    if type(image_data) == str:
+                        # The error code, google doesn't have the data
+                        data_info['is_error'] = True
+                    else:
+                        data_info['is_error'] = False
+                        # To save the image locally
+                        with open(f'data/{location}/{heading_angle}.jpg', 'wb') as f:
+                            f.write(image_data)
 
-                data_info_list.append(data_info)
+                    data_info_list.append(data_info)
 
 
     df = pd.DataFrame(np.array(data_info_list),
