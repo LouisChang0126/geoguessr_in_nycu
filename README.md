@@ -1,4 +1,4 @@
-# MYCU Street View
+# NYCU Street View
 
 ## Set up the api key
 Get the api key from the google map api:
