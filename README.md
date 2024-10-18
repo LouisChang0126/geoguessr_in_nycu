@@ -1,5 +1,21 @@
 # NYCU Street View
 
+## Scructure
+```
+geoguessr_in_nycu/
+|
+├── get data/ : download data from google street view
+|
+├── data/ : place to store data
+|
+├── Gemini/ : use few shot to classify data into buildings
+|
+├── Line bot/ : webhook of line bot
+...
+
+```
+
+
 ## Set up the api key
 Get the api key from the google map api:
 https://developers.google.com/maps/documentation/streetview?hl=zh-tw
@@ -10,7 +26,6 @@ https://developers.google.com/maps/documentation/streetview?hl=zh-tw
 pip install -r requirements.txt
 python3 my_data.py --network_type walk
 ```
-<<<<<<< HEAD
 
 ## How the Data stored
 * Every spot on the map has the 8 piture heading different direction
@@ -34,5 +49,3 @@ data/
 
 
 ```
-=======
->>>>>>> aa5a24b2876612499093eeccaefc294f780c3efd
