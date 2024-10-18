@@ -7,10 +7,10 @@ from utils import save_to_file
 from code_to_country import load_countries_dict
 
 def load_images(sub_path='test', with_additional=False):
-    image_directory = f"../dataset/{sub_path}"
-    image_paths = glob.glob(os.path.join(image_directory, "**", '*.jpg'), recursive=True)
+    image_directory = f"../dataset/{sub_path}" #must fix, the test input
+    image_paths = glob.glob(os.path.join(image_directory, "**", '*.jpg'), recursive=True) #return all of image path
 
-    countries_dict = load_countries_dict()
+    countries_dict = load_countries_dict() #return dict code to country_name, must fix
     
     image_info = []
     
@@ -20,6 +20,7 @@ def load_images(sub_path='test', with_additional=False):
         
         code = path.split("/")[-2].upper()
         name = os.path.basename(path)
+        '''
         image_info.append({
             "name": name,
             "path": path,
@@ -27,6 +28,14 @@ def load_images(sub_path='test', with_additional=False):
             "country": countries_dict.get(code, "unknown"),
             "longitude": float(name.split("_")[0]),
             "latitude": float(name.split("_")[1]),
+        })
+        '''
+        image_info.append({
+            "name": name,
+            "path": path,
+            "code": code,
+            "building": countries_dict.get(code, "unknown"),
+            "direction": float(name.split(".")[0]),
         })
     
     print(f"Found {len(image_info)} images")

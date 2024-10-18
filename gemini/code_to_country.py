@@ -1,6 +1,6 @@
 import json
 
-def load_countries_dict():
+def load_countries_dict(): #code to country
     json_file = open('../dataset/countries.json')
     countries = json.load(json_file)
     countries_dict = {}
