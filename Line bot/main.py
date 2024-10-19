@@ -144,23 +144,13 @@ def handle_message(event):
     line_bot_api.reply_message(event.reply_token, replyMessages)
 
 # (4) Postback Event
-# @handler.add(PostbackEvent)
-# def handle_postback(event):
-#     print(event)
-#     lineId = event.source.user_id
-#     command = event.postback.data
+@handler.add(PostbackEvent)
+def handle_postback(event):
+    print(event)
+    lineId = event.source.user_id
+    command = event.postback.data
     
-    # if (command[0:2] == 'A*'):#選調班日
-    #     replyMessages = shift_Z(command[2:].split("+"), lineId)
-    
-    # elif (command[0:2] == 'A&'):#選被調班日、被調班人
-    #     replyMessages = shift_A(command[2:].split("+"))
-        
-    # elif (command[0:2] == 'B&'):#跟調班人-確認申請
-    #     replyMessages = shift_B(command, "S")
-        
-    # elif (command[0:2] == 'B#'):#該服事有兩人的處理
-    #     replyMessages = shift_B_twoUser(command[2:].split("+"))
-        
-                                                                                                                                                                     
-    # line_bot_api.reply_message(event.reply_token, replyMessages)
+    if (command == 'template_classes'): #傳送課程的範例
+        replyMessages = TextSendMessage('課程增加方式：輸入"課程名稱/建築物"\n範例：微積分/科學一館\n\n課程地圖的使用請在課程名稱前輸入"課程："\n範例：課程：微積分')   
+
+    line_bot_api.reply_message(event.reply_token, replyMessages)
