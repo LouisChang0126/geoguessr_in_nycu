@@ -23,13 +23,12 @@ from PIL import Image
 import numpy as np
 from Building_classify import building_classify_fast_thread_int_return
 
-#firestore
-# import firebase_admin
-# from firebase_admin import credentials
-# from firebase_admin import firestore
-# cred = credentials.Certificate('serviceAccount.json')
-# firebase_admin.initialize_app(cred)
-# db = firestore.client()
+# firestore
+import firebase_admin
+from firebase_admin import credentials, firestore, storage
+cred = credentials.Certificate('serviceAccount.json')
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 handler = WebhookHandler(channel_secret)
 line_bot_api = LineBotApi(channel_access_token)
@@ -109,3 +108,4 @@ def handle_message(event):
         
                                                                                                                                                                      
     # line_bot_api.reply_message(event.reply_token, replyMessages)
+    
