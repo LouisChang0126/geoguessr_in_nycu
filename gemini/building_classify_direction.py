@@ -19,43 +19,42 @@ def direction_classify(Input_image, building_name):
     if(building_name == "1"):
         index = '1'
         building_name = "工程三館"
-        prompt = """接下來的八張照片是來自於建築物「工程三館」，分別代表不同的方位。"""
+
     elif(building_name == "2"):
         index = '2'
         building_name = "工程四館"
-        prompt = """接下來的八張照片是來自於建築物「工程四館」，分別代表不同的方位。"""
+
     elif(building_name == "3"):
         index = '3'
         building_name = "工程五館"
-        prompt = """接下來的八張照片是來自於建築物「工程五館」，分別代表不同的方位。"""
+
     elif(building_name == "4"):
         index = '4'
         building_name = "交映樓"
-        prompt = """接下來的八張照片是來自於建築物「交映樓」，分別代表不同的方位。"""
+
     elif(building_name == "5"):
         index = '5'
         building_name = "科學一館"
-        prompt = """接下來的八張照片是來自於建築物「科學一館」，分別代表不同的方位。"""
+
     elif(building_name == "6"):
         index = '6'
         building_name = "科學二館"
-        prompt = """接下來的八張照片是來自於建築物「科學二館」，分別代表不同的方位。"""
+
     elif(building_name == "7"):
         index = '7'
         building_name = "竹湖"
-        prompt = """接下來的八張照片是來自於建築物「竹湖」，分別代表不同的方位。"""
+
     elif(building_name == "8"):
         index = '8'
         building_name = "中正堂(大禮堂)"
-        prompt = """接下來的八張照片是來自於建築物「中正堂(大禮堂)」，分別代表不同的方位。"""
+
     elif(building_name == "9"):
         index = '9'
         building_name = "體育館"
-        prompt = """接下來的八張照片是來自於建築物「體育館」，分別代表不同的方位。"""
+
     elif(building_name == "10"):
         index = '10'
         building_name = "田家炳光電大樓"
-        prompt = """接下來的八張照片是來自於建築物「田家炳光電大樓」，分別代表不同的方位。"""
         
     for i in range(8):
       file = genai.get_file(name=pd_images[index][i])
@@ -63,17 +62,12 @@ def direction_classify(Input_image, building_name):
     
 
     model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-    content = [prompt]
+    prompt_main = "你將會接收到 8 張圖片作為參考樣本，分別標記為 1 到 8。接著，我會給你一張查詢圖片，請比較這張查詢圖片與所有參考樣本的相似度。 請回傳與查詢圖片最相似的圖片的索引，並將索引範圍設為 1～8（即第一張圖片的索引為 1，第二張圖片的索引為 2，依此類推）。 回應格式：<index>（例：3）"
+    content = [prompt_main]
     content.extend(image_list)
 
-    prompt_main_1 = "接下來的一張照片，稱為「使用者輸入照片」是{}的照片.".format(building_name)
-    content.extend([prompt_main_1])
-
-    prompt_main_2 = "請告訴我「使用者輸入照片」和前面八張參考照片中的哪一張最像? 只能從前面給的八張參考照片中選擇，請注意，不包含「使用者輸入照片」。選出照片後請告訴我它在這八張參考照片中是第幾張照片 輸出回答格式為一個integer，例如 : 2"
-
     content.extend([genai.upload_file(path='input_img.jpg', display_name='sc1_1')])
-    content.extend([prompt_main_2])
-
     response = model.generate_content(content)
+    
 
     return response.text
