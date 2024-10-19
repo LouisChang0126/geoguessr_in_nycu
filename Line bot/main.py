@@ -23,12 +23,13 @@ from PIL import Image
 import numpy as np
 from Building_classify import building_classify_fast_thread_int_return
 
-# firestore
-import firebase_admin
-from firebase_admin import credentials, firestore, storage
-cred = credentials.Certificate('serviceAccount.json')
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+#firestore
+# import firebase_admin
+# from firebase_admin import credentials
+# from firebase_admin import firestore
+# cred = credentials.Certificate('serviceAccount.json')
+# firebase_admin.initialize_app(cred)
+# db = firestore.client()
 
 handler = WebhookHandler(channel_secret)
 line_bot_api = LineBotApi(channel_access_token)
@@ -37,6 +38,42 @@ line_bot_api = LineBotApi(channel_access_token)
 welcomeMessage = TextSendMessage(text='歡迎加入陽交大校園地圖小幫手')
 errorMessage = TextSendMessage(text='哦，這超出我的能力範圍......')
 
+def link_and_building(num):
+    link = 'https://drive.google.com/uc?export=view&id='
+    name = None
+    if num == 1:
+        link += '1cp6tBT7Qu2hXCEU6qCSm2vW3MTRDo_Sg'
+        name = '工程三館'
+    elif num == 2:
+        link += '1Qz5K3MAPtQB4rHR9QYoqFpMJMPEFgFru'
+        name = '工程四館'
+    elif num == 3:
+        link += '104smxuN5q_L_rliTRomrX7uICm2k0sEQ'
+        name = '工程五館'
+    elif num == 4:
+        link += '1E73OAwrh4lNuOX6xpE9ua4bNBwFqgYDG'
+        name = '交映樓'
+    elif num == 5:
+        link += '1QKbHl3e279j16kQoZvSUq0gNEFHSL0ds'
+        name = '科學一館'
+    elif num == 6:
+        link += '1m5y65XOZYgXxC2UIkTS6QKlXsw8yM_SE'
+        name = '科學二館'
+    elif num == 7:
+        link += '12LqA_0YQJsnkz7WERXqk1jVSmOX4KopY'
+        name = '竹湖'
+    elif num == 8:
+        link += '1eqoMJ4FQqX6k1vNt_GNDcV2Qvkl1tlnu'
+        name = '中正堂(大禮堂)'
+    elif num == 9:
+        link += '1GhUxrqJrZpCprTNAqsvA9aW9wJ66wv6q'
+        name = '體育館'
+    elif num == 10:
+        link += '1E1nZFLg2jvUoOCIiw_E8h4GgI0gzFvgb'
+        name = '田家炳光電大樓'
+
+    return [TextSendMessage(text=name), ImageSendMessage(original_content_url=link,
+                    preview_image_url=link)]
 
 # (1) Webhook
 def lineWebhook(request):
@@ -65,17 +102,38 @@ def handle_message(event):
     types = event.message.type
     
     if types == 'image':
-        msg = "Upload success"
+        #msg = "Upload success"
         msgID = event.message.id 
         message_content = line_bot_api.get_message_content(msgID)
-        #replyMessages = [TextSendMessage(text = msg),
-                        #ImageSendMessage(original_content_url="https://github.com/LouisChang0126/geoguessr_in_nycu/blob/main/data/10_1.png",
-                    #preview_image_url="https://github.com/LouisChang0126/geoguessr_in_nycu/blob/main/data/10_1.png")]
         image = Image.open(BytesIO(message_content.content))
         image_array = np.array(image)
 
-        msg = str(building_classify_fast_thread_int_return(image_array))
-        replyMessages = TextSendMessage(text = msg)
+        msg = building_classify_fast_thread_int_return(image_array)
+
+        replyMessages = link_and_building(msg)
+        
+        replyMessages.append(TemplateSendMessage(alt_text='請選擇一個',
+                            template=ButtonsTemplate(
+                            title='要開啟Google map還是選擇想要前往的目的地?',
+                            text='<3',
+                            actions=[
+                                PostbackTemplateAction(
+                                    label='開啟Google map',
+                                    text='開啟Google map',
+                                    data=msg
+                                ),
+                                PostbackTemplateAction(
+                                    label='選擇目的地',
+                                    text='選擇目的地',
+                                    data=msg
+                                )
+                            ]
+                        )
+                    )
+        )
+        
+        #replyMessages.append(TextSendMessage(text = msg))
+        #replyMessages = TextSendMessage(text = msg)
         
 
     elif types == 'text':
@@ -108,4 +166,3 @@ def handle_message(event):
         
                                                                                                                                                                      
     # line_bot_api.reply_message(event.reply_token, replyMessages)
-    
