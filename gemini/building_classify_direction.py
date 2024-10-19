@@ -1,6 +1,7 @@
 import PIL
 import google.generativeai as genai
 import pandas as pd
+import numpy as np
 
 def direction_classify(Input_image, building_name):
     input_image = PIL.Image.fromarray(Input_image)
@@ -34,7 +35,7 @@ def direction_classify(Input_image, building_name):
     elif(building_name == "5"):
         index = '5'
         building_name = "科學一館"
-        prompt = """接下來的七張照片是來自於建築物「科學一館」，分別代表不同的方位。"""
+        prompt = """接下來的八張照片是來自於建築物「科學一館」，分別代表不同的方位。"""
     elif(building_name == "6"):
         index = '6'
         building_name = "科學二館"
@@ -56,14 +57,9 @@ def direction_classify(Input_image, building_name):
         building_name = "田家炳光電大樓"
         prompt = """接下來的八張照片是來自於建築物「田家炳光電大樓」，分別代表不同的方位。"""
         
-    if index == '5':
-        for i in range(7):
-            file = genai.get_file(name=pd_images[index][i])
-            image_list.append(file)
-    else:
-        for i in range(8):
-            file = genai.get_file(name=pd_images[index][i])
-            image_list.append(file)
+    for i in range(8):
+      file = genai.get_file(name=pd_images[index][i])
+      image_list.append(file)
     
 
     model = genai.GenerativeModel(model_name="gemini-1.5-flash")
@@ -73,14 +69,11 @@ def direction_classify(Input_image, building_name):
     prompt_main_1 = "接下來的一張照片，稱為「使用者輸入照片」是{}的照片.".format(building_name)
     content.extend([prompt_main_1])
 
-    prompt_main_2 = "請告訴我「使用者輸入照片」和前面幾張參考照片中的哪一張最像? 只能從前面給的幾張參考照片中選擇，請注意，不包含「使用者輸入照片」。選出照片後請告訴我它在這些參考照片中是第幾張照片 輸出回答格式為一個 integer，例如 : 2"
+    prompt_main_2 = "請告訴我「使用者輸入照片」和前面八張參考照片中的哪一張最像? 只能從前面給的八張參考照片中選擇，請注意，不包含「使用者輸入照片」。選出照片後請告訴我它在這八張參考照片中是第幾張照片 輸出回答格式為一個integer，例如 : 2"
 
     content.extend([genai.upload_file(path='input_img.jpg', display_name='sc1_1')])
     content.extend([prompt_main_2])
 
     response = model.generate_content(content)
-    print(response.text)
-    if response.text == '7' and index == '5':
-        return '8'
 
     return response.text
