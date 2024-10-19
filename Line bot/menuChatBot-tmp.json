@@ -1,0 +1,35 @@
+{
+    "size": {
+      "width": 1200,
+      "height": 400
+    },
+    "selected": true,
+    "name": "richmenuDemo",
+    "chatBarText": "功能主選單",
+    "areas": [
+      {
+        "bounds": {
+          "x": 600,
+          "y": 0,
+          "width": 300,
+          "height": 400
+        },
+        "action": {
+          "type": "uri",
+          "uri": "https://line.me/R/nv/camera/"
+        }
+      },
+      {
+        "bounds": {
+          "x": 900,
+          "y": 0,
+          "width": 300,
+          "height": 400
+        },
+        "action": {
+          "type": "uri",
+          "uri": "https://line.me/R/nv/cameraRoll/single"
+        }
+      }
+   ]
+}

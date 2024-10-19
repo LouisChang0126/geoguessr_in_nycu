@@ -547,7 +547,7 @@ def save_csv():
     image_list_9 = list()
     image_list_10 = list()
 
-    for file_name in os.listdir('data'):
+    for file_name in os.listdir('data3'):
         if file_name[0:2] == '10':
             the_uploaded_file = genai.upload_file(path=os.path.join('data', file_name), display_name=file_name)
             image_list_10.append(the_uploaded_file.name)
@@ -648,9 +648,9 @@ def save_csv_():
     image_list_9 = list()
     image_list_10 = list()
 
-    for file_name in os.listdir('data'):
+    for file_name in os.listdir('data3'):
         if file_name[0:2] == '10':
-            the_uploaded_file = genai.upload_file(path=os.path.join('data', file_name), display_name=file_name)
+            the_uploaded_file = genai.upload_file(path=os.path.join('data3', file_name), display_name=file_name)
             image_list_10.append(the_uploaded_file.name)
             #file = genai.get_file(name=the_uploaded_file.name)
             #print(the_uploaded_file.name)
@@ -658,47 +658,47 @@ def save_csv_():
             print("upload 10 :", file_name)
             pass
         elif file_name[0] == '1':
-            the_uploaded_file = genai.upload_file(path=os.path.join('data', file_name), display_name=file_name)
+            the_uploaded_file = genai.upload_file(path=os.path.join('data3', file_name), display_name=file_name)
             image_list_1.append(the_uploaded_file.name)
             print("upload 1 :", file_name)
             pass
         elif file_name[0] == '2':
-            the_uploaded_file = genai.upload_file(path=os.path.join('data', file_name), display_name=file_name)
+            the_uploaded_file = genai.upload_file(path=os.path.join('data3', file_name), display_name=file_name)
             image_list_2.append(the_uploaded_file.name)
             print("upload 2 :", file_name)
             pass
         elif file_name[0] == '3':
-            the_uploaded_file = genai.upload_file(path=os.path.join('data', file_name), display_name=file_name)
+            the_uploaded_file = genai.upload_file(path=os.path.join('data3', file_name), display_name=file_name)
             image_list_3.append(the_uploaded_file.name)
             print("upload 3 :", file_name)
             pass
         elif file_name[0] == '4':
-            the_uploaded_file = genai.upload_file(path=os.path.join('data', file_name), display_name=file_name)
+            the_uploaded_file = genai.upload_file(path=os.path.join('data3', file_name), display_name=file_name)
             image_list_4.append(the_uploaded_file.name)
             print("upload 4 :", file_name)
             pass
         elif file_name[0] == '5':
-            the_uploaded_file = genai.upload_file(path=os.path.join('data', file_name), display_name=file_name)
+            the_uploaded_file = genai.upload_file(path=os.path.join('data3', file_name), display_name=file_name)
             image_list_5.append(the_uploaded_file.name)
             print("upload 5 :", file_name)
             pass
         elif file_name[0] == '6':
-            the_uploaded_file = genai.upload_file(path=os.path.join('data', file_name), display_name=file_name)
+            the_uploaded_file = genai.upload_file(path=os.path.join('data3', file_name), display_name=file_name)
             image_list_6.append(the_uploaded_file.name)
             print("upload 6 :", file_name)
             pass
         elif file_name[0] == '7':
-            the_uploaded_file = genai.upload_file(path=os.path.join('data', file_name), display_name=file_name)
+            the_uploaded_file = genai.upload_file(path=os.path.join('data3', file_name), display_name=file_name)
             image_list_7.append(the_uploaded_file.name)
             print("upload 7 :", file_name)
             pass
         elif file_name[0] == '8':
-            the_uploaded_file = genai.upload_file(path=os.path.join('data', file_name), display_name=file_name)
+            the_uploaded_file = genai.upload_file(path=os.path.join('data3', file_name), display_name=file_name)
             image_list_8.append(the_uploaded_file.name)
             print("upload 8 :", file_name)
             pass
         elif file_name[0] == '9':
-            the_uploaded_file = genai.upload_file(path=os.path.join('data', file_name), display_name=file_name)
+            the_uploaded_file = genai.upload_file(path=os.path.join('data3', file_name), display_name=file_name)
             image_list_9.append(the_uploaded_file.name)
             print("upload 9 :", file_name)
             pass
@@ -715,7 +715,7 @@ def save_csv_():
                 '10':image_list_10}
     temp = pd.DataFrame(the_dict)
     print(temp)
-    temp.to_csv('uploaded_name_.csv', encoding='utf-8', index=False)
+    temp.to_csv('uploaded_name_direction.csv', encoding='utf-8', index=False)
 
 
 def save_csv_240():
@@ -823,12 +823,12 @@ def save_csv_240():
 
 
 if __name__ == '__main__':
-
-    for i in range(11):
-        if i == 0:
-            continue
-        the_input_image = PIL.Image.open(f'test_data/{i}.jfif')
-        the_input_image_np = np.array(the_input_image)
+    save_csv_()
+    # for i in range(11):
+    #     if i == 0:
+    #         continue
+    #     the_input_image = PIL.Image.open(f'test_data/{i}.jfif')
+    #     the_input_image_np = np.array(the_input_image)
     #building_classify(the_input_image_np)
     #save_csv()
     #genai.configure(api_key="AIzaSyDYf9O2CzW1HVxb4mkFq13YLx0qNo8oc2g")
@@ -842,4 +842,4 @@ if __name__ == '__main__':
     #A = pd.read_csv("uploaded_name.csv")
     #print(A['10'][0])
 
-        building_classify_faster(the_input_image_np)
+        # building_classify_faster(the_input_image_np)

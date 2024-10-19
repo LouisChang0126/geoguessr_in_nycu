@@ -1,6 +1,6 @@
 # NYCU Street View
 
-## Scructure
+## Structure
 ```
 geoguessr_in_nycu/
 |
