@@ -15,7 +15,8 @@ from linebot.models import (
     CarouselTemplate,
     CarouselColumn,
     ConfirmTemplate,
-    FlexSendMessage
+    FlexSendMessage,
+    URITemplateAction
 )
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -41,39 +42,25 @@ errorMessage = TextSendMessage(text='哦，這超出我的能力範圍......')
 def link_and_building(num):
     link = 'https://drive.google.com/uc?export=view&id='
     name = None
-    if num == 1:
-        link += '1cp6tBT7Qu2hXCEU6qCSm2vW3MTRDo_Sg'
-        name = '工程三館'
-    elif num == 2:
-        link += '1Qz5K3MAPtQB4rHR9QYoqFpMJMPEFgFru'
-        name = '工程四館'
-    elif num == 3:
-        link += '104smxuN5q_L_rliTRomrX7uICm2k0sEQ'
-        name = '工程五館'
-    elif num == 4:
-        link += '1E73OAwrh4lNuOX6xpE9ua4bNBwFqgYDG'
-        name = '交映樓'
-    elif num == 5:
-        link += '1QKbHl3e279j16kQoZvSUq0gNEFHSL0ds'
-        name = '科學一館'
-    elif num == 6:
-        link += '1m5y65XOZYgXxC2UIkTS6QKlXsw8yM_SE'
-        name = '科學二館'
-    elif num == 7:
-        link += '12LqA_0YQJsnkz7WERXqk1jVSmOX4KopY'
-        name = '竹湖'
-    elif num == 8:
-        link += '1eqoMJ4FQqX6k1vNt_GNDcV2Qvkl1tlnu'
-        name = '中正堂(大禮堂)'
-    elif num == 9:
-        link += '1GhUxrqJrZpCprTNAqsvA9aW9wJ66wv6q'
-        name = '體育館'
-    elif num == 10:
-        link += '1E1nZFLg2jvUoOCIiw_E8h4GgI0gzFvgb'
-        name = '田家炳光電大樓'
+    link = (
+        '1cp6tBT7Qu2hXCEU6qCSm2vW3MTRDo_Sg',
+        '1Qz5K3MAPtQB4rHR9QYoqFpMJMPEFgFru',
+        '104smxuN5q_L_rliTRomrX7uICm2k0sEQ',
+        '1E73OAwrh4lNuOX6xpE9ua4bNBwFqgYDG',
+        '1QKbHl3e279j16kQoZvSUq0gNEFHSL0ds',
+        '1m5y65XOZYgXxC2UIkTS6QKlXsw8yM_SE',
+        '12LqA_0YQJsnkz7WERXqk1jVSmOX4KopY',
+        '1eqoMJ4FQqX6k1vNt_GNDcV2Qvkl1tlnu',
+        '1GhUxrqJrZpCprTNAqsvA9aW9wJ66wv6q',
+        '1E1nZFLg2jvUoOCIiw_E8h4GgI0gzFvgb'
+    )
+    name = (
+        '工程三館', '工程四館', '工程五館', '交映樓', '科學一館',
+        '科學二館', '竹湖', '中正堂(大禮堂)', '體育館', '田家炳光電大樓'
+    )
 
-    return [TextSendMessage(text=name), ImageSendMessage(original_content_url=link,
-                    preview_image_url=link)]
+    return [TextSendMessage(text=name[num]), ImageSendMessage(original_content_url=link[num],
+                    preview_image_url=link[num])]
 
 # (1) Webhook
 def lineWebhook(request):
@@ -117,10 +104,9 @@ def handle_message(event):
                             title='要開啟Google map還是選擇想要前往的目的地?',
                             text='<3',
                             actions=[
-                                PostbackTemplateAction(
+                                URITemplateAction(
                                     label='開啟Google map',
-                                    text='開啟Google map',
-                                    data=msg
+                                    uri='https://www.google.com/maps'
                                 ),
                                 PostbackTemplateAction(
                                     label='選擇目的地',
