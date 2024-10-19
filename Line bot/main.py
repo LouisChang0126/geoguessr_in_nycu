@@ -54,13 +54,25 @@ def link_and_building(num):
         '1GhUxrqJrZpCprTNAqsvA9aW9wJ66wv6q',
         '1E1nZFLg2jvUoOCIiw_E8h4GgI0gzFvgb'
     )
+    map_link = (
+        'https://maps.app.goo.gl/UAedZmCRucFeJCxKA',
+        'https://maps.app.goo.gl/6xo22gbxfCoHVGi1A',
+        'https://maps.app.goo.gl/iQkXEZCTQGqS8F5UA',
+        'https://maps.app.goo.gl/dJZmhwrVB8qoRCWd8',
+        'https://maps.app.goo.gl/UKSS5y4U4sGzMJkR7',
+        'https://maps.app.goo.gl/jyLjyYkw5NCEYfoy6',
+        'https://maps.app.goo.gl/6i1qVfAAPPPoULUv5',
+        'https://maps.app.goo.gl/AxUsGuoEKQjfcvbA6',
+        'https://maps.app.goo.gl/iJHVtsTi8LS2wtFc6',
+        'https://maps.app.goo.gl/QtU5YUmCEmzkqcx49'
+    )
     name = (
         '工程三館', '工程四館', '工程五館', '交映樓', '科學一館',
         '科學二館', '竹湖', '中正堂(大禮堂)', '體育館', '田家炳光電大樓'
     )
 
     return [TextSendMessage(text=name[num]), ImageSendMessage(original_content_url=link+link2[num],
-                    preview_image_url=link+link2[num])]
+                    preview_image_url=link+link2[num])], map_link[num]
 
 # (1) Webhook
 def lineWebhook(request):
@@ -97,7 +109,7 @@ def handle_message(event):
 
         msg = building_classify_fast_thread_int_return(image_array)
 
-        replyMessages = link_and_building(msg)
+        replyMessages, map_link = link_and_building(msg)
         
         replyMessages.append(TemplateSendMessage(alt_text='請選擇一個',
                             template=ButtonsTemplate(
@@ -106,7 +118,7 @@ def handle_message(event):
                             actions=[
                                 URITemplateAction(
                                     label='開啟Google map',
-                                    uri='https://www.google.com/maps'
+                                    uri=map_link
                                 ),
                                 PostbackTemplateAction(
                                     label='選擇目的地',
