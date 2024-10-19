@@ -6,7 +6,9 @@ from linebot.models import (
     TextSendMessage,
     MessageEvent,
     TextMessage,
+    ImageMessage,
     PostbackEvent,
+    ImageSendMessage,
     ButtonsTemplate,
     TemplateSendMessage,
     PostbackTemplateAction,
@@ -16,46 +18,26 @@ from linebot.models import (
     FlexSendMessage
 )
 from datetime import datetime, timedelta
+from io import BytesIO
+from PIL import Image
+import numpy as np
+from Building_classify import building_classify_fast_thread_int_return
+
 #firestore
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import firestore
-cred = credentials.Certificate('serviceAccount.json')
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+# import firebase_admin
+# from firebase_admin import credentials
+# from firebase_admin import firestore
+# cred = credentials.Certificate('serviceAccount.json')
+# firebase_admin.initialize_app(cred)
+# db = firestore.client()
 
 handler = WebhookHandler(channel_secret)
 line_bot_api = LineBotApi(channel_access_token)
 
-def is_sign_in(lineId):
-    # 是否有登入
-    query = db.collection("user").where("lineId", "==", lineId).limit(1)
-    docs = query.get()
-    if len(docs) > 0 and docs[0].exists:
-        return True
-    return False
-
-def sign_in(name, lineId):
-    #登入
-    account=db.collection("user").document(name).get()
-    if account.exists and account.to_dict()['lineId']=='':
-        lib={"lineId":lineId,
-            "alarm_type":[False, False, True, False, False, False]}
-        db.collection("user").document(name).set(lib, merge=True)
-        return True
-    return False
-
-
 # (0) Messages
-welcomeMessage = TextSendMessage(text='歡迎加入青崇服事系統')
-loginMessage = TextSendMessage(text='請先輸入你的名字登入(2個字)\n格式範例:阿光')
+welcomeMessage = TextSendMessage(text='歡迎加入陽交大校園地圖小幫手')
 errorMessage = TextSendMessage(text='哦，這超出我的能力範圍......')
-def alarmMessage():
-    from week_alarm import alarm
-    return FlexSendMessage(alt_text='提醒設定', contents= alarm)
-def menuMessage():
-    from week_alarm import menu
-    return FlexSendMessage(alt_text='目錄', contents= menu)
+
 
 # (1) Webhook
 def lineWebhook(request):
@@ -74,65 +56,56 @@ def lineWebhook(request):
 # (2) Follow Event
 @handler.add(FollowEvent)
 def handle_follow(event):
-    replyMessages = [welcomeMessage, loginMessage]
+    replyMessages = [welcomeMessage]
     line_bot_api.reply_message(event.reply_token, replyMessages)
 
 # (3) Message Event
-@handler.add(MessageEvent, message=TextMessage)
+@handler.add(MessageEvent, message=(TextMessage, ImageMessage))
 def handle_message(event):
-    lineId = event.source.user_id
-    command = event.message.text
-    if is_sign_in(lineId):
-        if (command in ['總班表','全部班表']):
-            replyMessages = wholeChart(lineId)
-            
-        elif (command in ['換班', '調班']):#選調班日、種類
-            replyMessages = TemplateSendMessage(alt_text='調班選單', template=CarouselTemplate(shift_0(lineId, 'S')))
-        
-        elif (command in ['贈予', '贈送', '贈與']):
-            replyMessages = TemplateSendMessage(alt_text='調班選單', template=CarouselTemplate(shift_0(lineId, 'G')))
-        
-        elif (command in ['設定提醒', '提醒設定', '設定']):
-            replyMessages = alarmMessage()
-        
-        elif (command in ['目錄', 'Menu', 'menu', '主選單', '選單']):
-            replyMessages = menuMessage()
-            
-        elif (command[0:5] == "管理員模式"):#強制調班
-            replyMessages = manager_mode(command)
-                
-        else:
-            return
-    else:
-        if (len(command) == 2):
-            if sign_in(command, lineId):
-                replyMessages = [TextSendMessage(text = "登入成功"),TextSendMessage(text = "手機請\"點按功能主選單\"\n平板請傳送「目錄」呼叫選單")]
-            else:
-                replyMessages = TextSendMessage(text = "登入失敗")
+    #lineId = event.source.user_id
+    types = event.message.type
+    
+    if types == 'image':
+        msg = "Upload success"
+        msgID = event.message.id 
+        message_content = line_bot_api.get_message_content(msgID)
+        #replyMessages = [TextSendMessage(text = msg),
+                        #ImageSendMessage(original_content_url="https://github.com/LouisChang0126/geoguessr_in_nycu/blob/main/data/10_1.png",
+                    #preview_image_url="https://github.com/LouisChang0126/geoguessr_in_nycu/blob/main/data/10_1.png")]
+        image = Image.open(BytesIO(message_content.content))
+        image_array = np.array(image)
 
-        else:
-            replyMessages = [errorMessage, loginMessage]
+        msg = str(building_classify_fast_thread_int_return(image_array))
+        replyMessages = TextSendMessage(text = msg)
+        
+
+    elif types == 'text':
+        msg = event.message.text
+        replyMessages = TextSendMessage(text = msg)
+
+    else:
+        replyMessages = [errorMessage]
                                                                                         
     line_bot_api.reply_message(event.reply_token, replyMessages)
 
 # (4) Postback Event
-@handler.add(PostbackEvent)
-def handle_postback(event):
-    print(event)
-    lineId = event.source.user_id
-    command = event.postback.data
+# @handler.add(PostbackEvent)
+# def handle_postback(event):
+#     print(event)
+#     lineId = event.source.user_id
+#     command = event.postback.data
     
-    if (command[0:2] == 'A*'):#選調班日
-        replyMessages = shift_Z(command[2:].split("+"), lineId)
+    # if (command[0:2] == 'A*'):#選調班日
+    #     replyMessages = shift_Z(command[2:].split("+"), lineId)
     
-    elif (command[0:2] == 'A&'):#選被調班日、被調班人
-        replyMessages = shift_A(command[2:].split("+"))
+    # elif (command[0:2] == 'A&'):#選被調班日、被調班人
+    #     replyMessages = shift_A(command[2:].split("+"))
         
-    elif (command[0:2] == 'B&'):#跟調班人-確認申請
-        replyMessages = shift_B(command, "S")
+    # elif (command[0:2] == 'B&'):#跟調班人-確認申請
+    #     replyMessages = shift_B(command, "S")
         
-    elif (command[0:2] == 'B#'):#該服事有兩人的處理
-        replyMessages = shift_B_twoUser(command[2:].split("+"))
+    # elif (command[0:2] == 'B#'):#該服事有兩人的處理
+    #     replyMessages = shift_B_twoUser(command[2:].split("+"))
         
                                                                                                                                                                      
-    line_bot_api.reply_message(event.reply_token, replyMessages)
+    # line_bot_api.reply_message(event.reply_token, replyMessages)
