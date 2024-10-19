@@ -27,8 +27,9 @@
           "height": 400
         },
         "action": {
-          "type": "uri",
-          "uri": "https://line.me/R/nv/cameraRoll/single"
+          "type": "postback",
+          "data": "template_classes",
+          "displayText": "課程地圖"
         }
       }
    ]

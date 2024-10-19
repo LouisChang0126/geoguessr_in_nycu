@@ -25,12 +25,11 @@ import numpy as np
 from Building_classify import building_classify_fast_thread_int_return
 
 #firestore
-# import firebase_admin
-# from firebase_admin import credentials
-# from firebase_admin import firestore
-# cred = credentials.Certificate('serviceAccount.json')
-# firebase_admin.initialize_app(cred)
-# db = firestore.client()
+import firebase_admin
+from firebase_admin import credentials, firestore
+cred = credentials.Certificate('serviceAccount.json')
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 handler = WebhookHandler(channel_secret)
 line_bot_api = LineBotApi(channel_access_token)
@@ -41,7 +40,6 @@ errorMessage = TextSendMessage(text='哦，這超出我的能力範圍......')
 
 def link_and_building(num):
     link = 'https://drive.google.com/uc?export=view&id='
-    name = None
     link2 = (
         '1cp6tBT7Qu2hXCEU6qCSm2vW3MTRDo_Sg',
         '1Qz5K3MAPtQB4rHR9QYoqFpMJMPEFgFru',
@@ -151,6 +149,7 @@ def handle_postback(event):
     command = event.postback.data
     
     if (command == 'template_classes'): #傳送課程的範例
-        replyMessages = TextSendMessage('課程增加方式：輸入"課程名稱/建築物"\n範例：微積分/科學一館\n\n課程地圖的使用請在課程名稱前輸入"課程："\n範例：課程：微積分')   
-
-    line_bot_api.reply_message(event.reply_token, replyMessages)
+        replyMessages = TextSendMessage('課程增加方式：\n輸入"課程名稱/建築物"\n\n範例：微積分/科學一館\n---------\n\n課程地圖使用：\n在課程名稱前輸入"課程#"\n\n範例：課程#微積分')   
+    
+    if replyMessages is not None:
+        line_bot_api.reply_message(event.reply_token, replyMessages)
