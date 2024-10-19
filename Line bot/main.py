@@ -42,7 +42,7 @@ errorMessage = TextSendMessage(text='哦，這超出我的能力範圍......')
 def link_and_building(num):
     link = 'https://drive.google.com/uc?export=view&id='
     name = None
-    link = (
+    link2 = (
         '1cp6tBT7Qu2hXCEU6qCSm2vW3MTRDo_Sg',
         '1Qz5K3MAPtQB4rHR9QYoqFpMJMPEFgFru',
         '104smxuN5q_L_rliTRomrX7uICm2k0sEQ',
@@ -59,8 +59,8 @@ def link_and_building(num):
         '科學二館', '竹湖', '中正堂(大禮堂)', '體育館', '田家炳光電大樓'
     )
 
-    return [TextSendMessage(text=name[num]), ImageSendMessage(original_content_url=link[num],
-                    preview_image_url=link[num])]
+    return [TextSendMessage(text=name[num]), ImageSendMessage(original_content_url=link+link2[num],
+                    preview_image_url=link+link2[num])]
 
 # (1) Webhook
 def lineWebhook(request):
