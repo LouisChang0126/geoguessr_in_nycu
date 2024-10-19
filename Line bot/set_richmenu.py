@@ -8,7 +8,7 @@ from chatBotConfig import channel_access_token,channel_secret
 line_bot_api = LineBotApi(channel_access_token)
 
 # 讀取 Rich Menu 設定的 JSON 檔案，使用 utf-8 編碼
-with open("menuChatBot-tmp.json", "r", encoding="utf-8") as json_file:
+with open("menuChatBot.json", "r", encoding="utf-8") as json_file:
     rich_menu_settings = json.load(json_file)
 
 # 建立 Rich Menu
