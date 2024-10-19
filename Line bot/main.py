@@ -36,7 +36,22 @@ line_bot_api = LineBotApi(channel_access_token)
 
 # (0) Messages
 welcomeMessage = TextSendMessage(text='歡迎加入陽交大校園地圖小幫手')
-errorMessage = TextSendMessage(text='哦，這超出我的能力範圍......')
+errorMessage = TextSendMessage(text='ㄜ...看不懂ㄛ...')
+courseMessage = TextSendMessage('課程增加方式：\n輸入"課程名稱/建築物"\n\n範例：微積分/科學一館\n------------------------------------\n課程地圖使用：\n在課程名稱前輸入"課程#"\n\n範例：課程#微積分')   
+
+building_name = (
+    '工程三館', '工程四館', '工程五館', '交映樓', '科學一館',
+    '科學二館', '竹湖', '中正堂(大禮堂)', '體育館', '田家炳光電大樓'
+)
+
+def sign_in(lineId):
+    #登入
+    account=db.collection("user").document(lineId).get()
+    if account.exists:
+        return account.to_dict()
+    else:
+        db.collection("user").document(lineId).set({})
+        return {}
 
 def link_and_building(num):
     link = 'https://drive.google.com/uc?export=view&id='
@@ -64,12 +79,8 @@ def link_and_building(num):
         'https://maps.app.goo.gl/iJHVtsTi8LS2wtFc6',
         'https://maps.app.goo.gl/QtU5YUmCEmzkqcx49'
     )
-    name = (
-        '工程三館', '工程四館', '工程五館', '交映樓', '科學一館',
-        '科學二館', '竹湖', '中正堂(大禮堂)', '體育館', '田家炳光電大樓'
-    )
 
-    return [TextSendMessage(text=name[num]), ImageSendMessage(original_content_url=link+link2[num],
+    return [TextSendMessage(text=building_name[num]), ImageSendMessage(original_content_url=link+link2[num],
                     preview_image_url=link+link2[num])], map_link[num]
 
 # (1) Webhook
@@ -95,9 +106,9 @@ def handle_follow(event):
 # (3) Message Event
 @handler.add(MessageEvent, message=(TextMessage, ImageMessage))
 def handle_message(event):
-    #lineId = event.source.user_id
+    lineId = event.source.user_id
     types = event.message.type
-    
+        
     if types == 'image':
         #msg = "Upload success"
         msgID = event.message.id 
@@ -111,8 +122,8 @@ def handle_message(event):
         
         replyMessages.append(TemplateSendMessage(alt_text='請選擇一個',
                             template=ButtonsTemplate(
-                            title='要開啟Google map還是選擇想要前往的目的地?',
-                            text='<3',
+                            title='要開啟Google Map或是選擇想要前往的目的地嗎?',
+                            text='',
                             actions=[
                                 URITemplateAction(
                                     label='開啟Google map',
@@ -128,16 +139,27 @@ def handle_message(event):
                     )
         )
         
-        #replyMessages.append(TextSendMessage(text = msg))
-        #replyMessages = TextSendMessage(text = msg)
-        
-
     elif types == 'text':
+        account = sign_in(lineId)
+        
         msg = event.message.text
-        replyMessages = TextSendMessage(text = msg)
+        if ('/' in msg):
+            if(msg.split('/')[1] in building_name):
+                account[msg.split('/')[0]] = msg.split('/')[1]
+                db.collection("user").document(lineId).set(account)
+                replyMessages = TextSendMessage(text=f'新增 {msg.split("/")[0]} 成功')
+            else:
+                replyMessages = TextSendMessage(text='目前不支援這棟建築ㄛ')
+        elif (msg[:3] == '課程#'):
+            if(msg.split('#')[1] in account):
+                replyMessages = TextSendMessage(text=f'{account[msg.split("#")[1]]}')
+            else:
+                replyMessages = TextSendMessage(text='你目前沒有新增這門課程ㄛ')
+        else:
+            replyMessages = [errorMessage, courseMessage]
 
     else:
-        replyMessages = [errorMessage]
+        replyMessages = errorMessage
                                                                                         
     line_bot_api.reply_message(event.reply_token, replyMessages)
 
@@ -149,7 +171,7 @@ def handle_postback(event):
     command = event.postback.data
     
     if (command == 'template_classes'): #傳送課程的範例
-        replyMessages = TextSendMessage('課程增加方式：\n輸入"課程名稱/建築物"\n\n範例：微積分/科學一館\n---------\n\n課程地圖使用：\n在課程名稱前輸入"課程#"\n\n範例：課程#微積分')   
+        replyMessages = courseMessage
     
     if replyMessages is not None:
         line_bot_api.reply_message(event.reply_token, replyMessages)
