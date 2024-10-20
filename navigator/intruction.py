@@ -63,7 +63,7 @@ class Instructor:
                 else:
                     passed_inter+=1
                     
-        return self.gemini(turn_instructions, turn_info, orig, dest)
+        self.gemini(turn_instructions, turn_info, orig, dest)
         
     def search_the_osmid(self, key):
         search_result = self.gdf_bf.loc[self.gdf_bf['name']==key]
@@ -115,7 +115,7 @@ class Instructor:
         for i in range(len(turn_ins)):
             inst = f"路徑步驟{i}:{turn_ins[i]}, 路口鄰近的建築物資訊:"
             
-            for info in turn_info:
+            for info in turn_info[i]:
                 bf_1 = bf.loc[bf['name'] == info]
                 inst+=f"名稱：{info}描述：{bf_1['description'][0]}"
             SYS_PROMPT += inst
