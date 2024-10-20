@@ -63,9 +63,9 @@ class Instructor:
                 else:
                     passed_inter+=1
                 
-        fig, ax = ox.plot_graph_route(self.G, route, route_color="y", route_linewidth=1, node_size=0)
-        fig.savefig("route_plot.png", dpi=300, bbox_inches='tight')      
-        return self.gemini(turn_instructions, turn_info, orig, dest)
+        # fig, ax = ox.plot_graph_route(self.G, route, route_color="y", route_linewidth=1, node_size=0)
+        # fig.savefig("route_plot.png", dpi=300, bbox_inches='tight')      
+        # return self.gemini(turn_instructions, turn_info, orig, dest)
         
     def search_the_osmid(self, key):
         search_result = self.gdf_bf.loc[self.gdf_bf['name']==key]
