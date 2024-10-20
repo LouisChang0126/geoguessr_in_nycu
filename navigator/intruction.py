@@ -13,8 +13,8 @@ class Instructor:
         place = "National Yang Ming Chiao Tung University Guangfu Campus, Hsinchu, Taiwan"
         
         # # Download the street network graph for the area
-        self.G = ox.graph_from_place(place, network_type="walk")
-        # self.G = ox.load_graphml('NYCU.graphml')
+        # self.G = ox.graph_from_place(place, network_type="walk")
+        self.G = ox.load_graphml('NYCU.graphml')
         
         tags = {"building": True}
         gdf_building = ox.features_from_place(place, tags)
@@ -63,7 +63,7 @@ class Instructor:
                 else:
                     passed_inter+=1
                 
-        fig, ax = ox.plot_graph_route(G, route, route_color="y", route_linewidth=1, node_size=0)
+        fig, ax = ox.plot_graph_route(self.G, route, route_color="y", route_linewidth=1, node_size=0)
         fig.savefig("route_plot.png", dpi=300, bbox_inches='tight')      
         return self.gemini(turn_instructions, turn_info, orig, dest)
         
