@@ -1,4 +1,3 @@
-from chatBotConfig import channel_secret, channel_access_token
 from linebot import WebhookHandler, LineBotApi
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import (
@@ -140,7 +139,7 @@ def handle_message(event):
         image_array = np.array(image)
 
         msg = building_classify_fast_thread_int_return(image_array)
-        if type(msg) == str():
+        if type(msg) == str:
             line_bot_api.reply_message(event.reply_token, [errorMessage])
 
         replyMessages = link_and_building(msg-1)
@@ -224,9 +223,11 @@ def handle_postback(event):
     elif ('choose_start' in command): #選擇目的地
         replyMessages = TemplateSendMessage(alt_text='選擇現在位置', template=CarouselTemplate(building_name_carousel(2, command.split('%')[1])))
     elif (command[:2] == "A&"): #文字地圖
-        replyMessages = inst.navigator(building_name[int(command[2:].split('%')[1])-1], building_name[int(command[2:].split('%')[0])-1])
+        rpy = inst.navigator(building_name[int(command[2:].split('%')[1])-1], building_name[int(command[2:].split('%')[0])-1])
+        replyMessages = TextSendMessage(text=rpy)
     elif (command[:2] == "B&"): #文字地圖
-        replyMessages = inst.navigator(building_name[int(command[2:].split('%')[0])-1], building_name[int(command[2:].split('%')[1])-1])
+        rpy = inst.navigator(building_name[int(command[2:].split('%')[0])-1], building_name[int(command[2:].split('%')[1])-1])
+        replyMessages = TextSendMessage(text=rpy)
 
     if replyMessages is not None:
         line_bot_api.reply_message(event.reply_token, replyMessages)
