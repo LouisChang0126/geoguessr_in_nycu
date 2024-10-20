@@ -62,8 +62,10 @@ class Instructor:
                     turn_info.append(self.get_nearby_building((p2[0], p2[1])))
                 else:
                     passed_inter+=1
-                    
-        self.gemini(turn_instructions, turn_info, orig, dest)
+                
+        fig, ax = ox.plot_graph_route(G, route, route_color="y", route_linewidth=1, node_size=0)
+        fig.savefig("route_plot.png", dpi=300, bbox_inches='tight')      
+        return self.gemini(turn_instructions, turn_info, orig, dest)
         
     def search_the_osmid(self, key):
         search_result = self.gdf_bf.loc[self.gdf_bf['name']==key]
@@ -111,6 +113,7 @@ class Instructor:
         轉彎的方向以及路口鄰近的建築物的名稱與大致外觀的描述，請你引導使用著到達目的地，並請遵守以下幾點：
         1. 條列式的簡述路徑步驟，不可以有過多冗長的內容
         2. 不可以擅自新增沒有提供的資訊
+        3. 生成的內容請不要包含路口的編號
         """
         for i in range(len(turn_ins)):
             inst = f"路徑步驟{i}:{turn_ins[i]}, 路口鄰近的建築物資訊:"
