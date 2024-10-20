@@ -42,10 +42,10 @@ welcomeMessage = TextSendMessage(text='歡迎加入陽交大校園地圖小幫�
 errorMessage = TextSendMessage(text='ㄜ...看不懂ㄛ...')
 courseMessage = TextSendMessage('課程增加方式：\n輸入"課程名稱/建築物"\n\n範例：微積分/科學一館\n------------------------------------\n課程地圖使用：\n在課程名稱前輸入"課程#"\n\n範例：課程#微積分')   
 
-building_name = (
+building_name = [
     '工程三館', '工程四館', '工程五館', '交映樓', '科學一館',
     '科學二館', '竹湖', '中正堂(大禮堂)', '體育館', '田家炳光電大樓'
-)
+]
 
 map_link = (
         'https://maps.app.goo.gl/UAedZmCRucFeJCxKA',
@@ -72,7 +72,7 @@ def sign_in(lineId):
 def building_name_carousel(mode, building):
     columns=[]
     action_S=[]
-    tmp = building_name + ['', '']
+    tmp = building_name + [' ', ' ']
     for i in range(12):
         action_S.append(PostbackTemplateAction(
             label=tmp[i],
@@ -140,19 +140,19 @@ def handle_message(event):
         image_array = np.array(image)
 
         msg = building_classify_fast_thread_int_return(image_array)
-        if type(msg) == str:
+        if type(msg) == str():
             line_bot_api.reply_message(event.reply_token, [errorMessage])
 
-        replyMessages = link_and_building(msg)
+        replyMessages = link_and_building(msg-1)
         
         replyMessages.append(TemplateSendMessage(alt_text='請選擇一個',
                             template=ButtonsTemplate(
                             title='要開啟Google Map或是選擇想要前往的目的地嗎?',
-                            text='',
+                            text='<3',
                             actions=[
                                 URITemplateAction(
                                     label='開啟Google map',
-                                    uri=map_link[msg]
+                                    uri=map_link[msg-1]
                                 ),
                                 PostbackTemplateAction(
                                     label='選擇目的地',
@@ -183,7 +183,7 @@ def handle_message(event):
                 replyMessages.append(TemplateSendMessage(alt_text='請選擇一個',
                             template=ButtonsTemplate(
                             title='要開啟Google Map或是開啟文字敘述導航?',
-                            text='',
+                            text='<3',
                             actions=[
                                 URITemplateAction(
                                     label='開啟Google map',
@@ -192,7 +192,7 @@ def handle_message(event):
                                 PostbackTemplateAction(
                                     label='文字導航',
                                     text='文字導航',
-                                    data=f'choose_start%{index}'
+                                    data=f'choose_start%{index+1}'
                                 )
                             ]
                         )
@@ -200,6 +200,8 @@ def handle_message(event):
             )
             else:
                 replyMessages = TextSendMessage(text='你目前沒有新增這門課程ㄛ')
+        elif msg in building_name or msg == '選擇目的地':
+            return
         else:
             replyMessages = [errorMessage, courseMessage]
 
@@ -222,9 +224,9 @@ def handle_postback(event):
     elif ('choose_start' in command): #選擇目的地
         replyMessages = TemplateSendMessage(alt_text='選擇現在位置', template=CarouselTemplate(building_name_carousel(2, command.split('%')[1])))
     elif (command[:2] == "A&"): #文字地圖
-        replyMessages = inst.navigotor(command[2:].split('%')[1], command[2:].split('%')[0])
+        replyMessages = inst.navigator(building_name[int(command[2:].split('%')[1])-1], building_name[int(command[2:].split('%')[0])-1])
     elif (command[:2] == "B&"): #文字地圖
-        replyMessages = inst.navigotor(command[2:].split('%')[0], command[2:].split('%')[1])
+        replyMessages = inst.navigator(building_name[int(command[2:].split('%')[0])-1], building_name[int(command[2:].split('%')[1])-1])
 
     if replyMessages is not None:
         line_bot_api.reply_message(event.reply_token, replyMessages)

@@ -261,18 +261,11 @@ def building_classify_fast_thread_int_return(Input_image):
     content.extend([prompt_main_2])
 
     response = model.generate_content(content)
+    response.text.replace("'", "").replace('"', "").replace(".", "")
+    nums = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10')
 
-    print(response.text)
+    for num in nums:
+        if num in response.text:
+            return int(response.text)
+
     return response.text
-
-
-
-if __name__ == '__main__':
-
-    for i in range(11):
-        if i == 0:
-            continue
-        the_input_image = PIL.Image.open(f'test_data/{i}.jfif')
-        the_input_image_np = np.array(the_input_image)
-
-        building_classify_fast_thread_int_return(the_input_image_np)
