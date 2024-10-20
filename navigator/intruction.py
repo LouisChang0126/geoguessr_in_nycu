@@ -116,8 +116,10 @@ class Instructor:
             inst = f"路徑步驟{i}:{turn_ins[i]}, 路口鄰近的建築物資訊:"
             
             for info in turn_info[i]:
-                bf_1 = bf.loc[bf['name'] == info]
-                inst+=f"名稱：{info}描述：{bf_1['description'][0]}"
+                for building in info:
+                    bf_1 = bf.loc[bf['name'] == building]
+                    
+                    inst+=f"名稱：{building}描述：{bf_1['description'][0]}"
             SYS_PROMPT += inst
         response = model.generate_content(SYS_PROMPT+f"起點：{orig}終點：{dest}")
         print(response.text)
