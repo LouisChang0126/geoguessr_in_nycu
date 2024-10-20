@@ -23,6 +23,9 @@ from io import BytesIO
 from PIL import Image
 import numpy as np
 from Building_classify import building_classify_fast_thread_int_return
+from instruction import Instructor
+
+inst = Instructor()
 
 #firestore
 import firebase_admin
@@ -44,6 +47,19 @@ building_name = (
     '科學二館', '竹湖', '中正堂(大禮堂)', '體育館', '田家炳光電大樓'
 )
 
+map_link = (
+        'https://maps.app.goo.gl/UAedZmCRucFeJCxKA',
+        'https://maps.app.goo.gl/6xo22gbxfCoHVGi1A',
+        'https://maps.app.goo.gl/iQkXEZCTQGqS8F5UA',
+        'https://maps.app.goo.gl/dJZmhwrVB8qoRCWd8',
+        'https://maps.app.goo.gl/UKSS5y4U4sGzMJkR7',
+        'https://maps.app.goo.gl/jyLjyYkw5NCEYfoy6',
+        'https://maps.app.goo.gl/6i1qVfAAPPPoULUv5',
+        'https://maps.app.goo.gl/AxUsGuoEKQjfcvbA6',
+        'https://maps.app.goo.gl/iJHVtsTi8LS2wtFc6',
+        'https://maps.app.goo.gl/QtU5YUmCEmzkqcx49'
+)
+
 def sign_in(lineId):
     #登入
     account=db.collection("user").document(lineId).get()
@@ -52,6 +68,25 @@ def sign_in(lineId):
     else:
         db.collection("user").document(lineId).set({})
         return {}
+
+def building_name_carousel(mode, building):
+    columns=[]
+    action_S=[]
+    tmp = building_name + ['', '']
+    for i in range(12):
+        action_S.append(PostbackTemplateAction(
+            label=tmp[i],
+            text=tmp[i],
+            data=f"{'A&' if mode==1 else 'B&'}{i+1}%{building}")
+        )
+        if len(action_S)%3 == 0:
+            columns.append(CarouselColumn(
+                title='目的地',
+                text='選擇一個目的地',
+                actions=action_S
+            ))
+            action_S=[]
+    return columns
 
 def link_and_building(num):
     link = 'https://drive.google.com/uc?export=view&id='
@@ -67,21 +102,9 @@ def link_and_building(num):
         '1GhUxrqJrZpCprTNAqsvA9aW9wJ66wv6q',
         '1E1nZFLg2jvUoOCIiw_E8h4GgI0gzFvgb'
     )
-    map_link = (
-        'https://maps.app.goo.gl/UAedZmCRucFeJCxKA',
-        'https://maps.app.goo.gl/6xo22gbxfCoHVGi1A',
-        'https://maps.app.goo.gl/iQkXEZCTQGqS8F5UA',
-        'https://maps.app.goo.gl/dJZmhwrVB8qoRCWd8',
-        'https://maps.app.goo.gl/UKSS5y4U4sGzMJkR7',
-        'https://maps.app.goo.gl/jyLjyYkw5NCEYfoy6',
-        'https://maps.app.goo.gl/6i1qVfAAPPPoULUv5',
-        'https://maps.app.goo.gl/AxUsGuoEKQjfcvbA6',
-        'https://maps.app.goo.gl/iJHVtsTi8LS2wtFc6',
-        'https://maps.app.goo.gl/QtU5YUmCEmzkqcx49'
-    )
 
     return [TextSendMessage(text=building_name[num]), ImageSendMessage(original_content_url=link+link2[num],
-                    preview_image_url=link+link2[num])], map_link[num]
+                    preview_image_url=link+link2[num])]
 
 # (1) Webhook
 def lineWebhook(request):
@@ -117,8 +140,10 @@ def handle_message(event):
         image_array = np.array(image)
 
         msg = building_classify_fast_thread_int_return(image_array)
+        if type(msg) == str:
+            line_bot_api.reply_message(event.reply_token, [errorMessage])
 
-        replyMessages, map_link = link_and_building(msg)
+        replyMessages = link_and_building(msg)
         
         replyMessages.append(TemplateSendMessage(alt_text='請選擇一個',
                             template=ButtonsTemplate(
@@ -127,12 +152,12 @@ def handle_message(event):
                             actions=[
                                 URITemplateAction(
                                     label='開啟Google map',
-                                    uri=map_link
+                                    uri=map_link[msg]
                                 ),
                                 PostbackTemplateAction(
                                     label='選擇目的地',
                                     text='選擇目的地',
-                                    data=msg
+                                    data=f'choose_destination%{msg}'
                                 )
                             ]
                         )
@@ -152,7 +177,27 @@ def handle_message(event):
                 replyMessages = TextSendMessage(text='目前不支援這棟建築ㄛ')
         elif (msg[:3] == '課程#'):
             if(msg.split('#')[1] in account):
-                replyMessages = TextSendMessage(text=f'{account[msg.split("#")[1]]}')
+                name = f'{account[msg.split("#")[1]]}'
+                index = building_name.index(name)
+                replyMessages = [TextSendMessage(text=name)]
+                replyMessages.append(TemplateSendMessage(alt_text='請選擇一個',
+                            template=ButtonsTemplate(
+                            title='要開啟Google Map或是開啟文字敘述導航?',
+                            text='',
+                            actions=[
+                                URITemplateAction(
+                                    label='開啟Google map',
+                                    uri=map_link[index]
+                                ),
+                                PostbackTemplateAction(
+                                    label='文字導航',
+                                    text='文字導航',
+                                    data=f'choose_start%{index}'
+                                )
+                            ]
+                        )
+                    )
+            )
             else:
                 replyMessages = TextSendMessage(text='你目前沒有新增這門課程ㄛ')
         else:
@@ -172,6 +217,14 @@ def handle_postback(event):
     
     if (command == 'template_classes'): #傳送課程的範例
         replyMessages = courseMessage
-    
+    elif ('choose_destination' in command): #選擇目的地
+        replyMessages = TemplateSendMessage(alt_text='選擇目的地', template=CarouselTemplate(building_name_carousel(1, command.split('%')[1])))
+    elif ('choose_start' in command): #選擇目的地
+        replyMessages = TemplateSendMessage(alt_text='選擇現在位置', template=CarouselTemplate(building_name_carousel(2, command.split('%')[1])))
+    elif (command[:2] == "A&"): #文字地圖
+        replyMessages = inst.navigotor(command[2:].split('%')[1], command[2:].split('%')[0])
+    elif (command[:2] == "B&"): #文字地圖
+        replyMessages = inst.navigotor(command[2:].split('%')[0], command[2:].split('%')[1])
+
     if replyMessages is not None:
         line_bot_api.reply_message(event.reply_token, replyMessages)
