@@ -104,6 +104,7 @@ class Instructor:
         
     def gemini(self, turn_ins, turn_info, orig, dest):
         bf = pd.read_csv('building_feature.csv')
+        print(bf.shape)
         model = genai.GenerativeModel("gemini-1.5-flash")
         SYS_PROMPT = """
         你是交通大學校園的導覽小幫手，你要做的事是從提供的路徑步驟指示引導使用者在校園中走到需要的路，請你詳細的描述每個轉彎的資訊包含第幾路口轉彎、
@@ -113,8 +114,10 @@ class Instructor:
         """
         for i in range(len(turn_ins)):
             inst = f"路徑步驟{i}:{turn_ins[i]}, 路口鄰近的建築物資訊:"
+            
             for info in turn_info:
-                inst+=f"名稱：{info}描述：{bf.loc[bf['name'] == info]['description'][0]}"
+                bf_1 = bf.loc[bf['name'] == info]
+                inst+=f"名稱：{info}描述：{bf_1['description'][0]}"
             SYS_PROMPT += inst
         response = model.generate_content(SYS_PROMPT+f"起點：{orig}終點：{dest}")
         print(response.text)
